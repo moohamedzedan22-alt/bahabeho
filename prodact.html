@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Bahabeho</title>
+    <link rel="stylesheet" href="derma.css">
+    <style>
+        /* Admin icon in navbar */
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: white;
+            font-size: 17px;
+            transition: 0.3s;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .admin-nav-link:hover { color: #ffe0ec; background: rgba(255,255,255,0.3); }
+        .admin-icon { font-size: 18px; }
+    </style>
+</head>
+<body>
+     <nav>
+    <div class="logo">Bahabehio</div>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+
+    <ul id="navMenu">
+        <li class="close-btn" onclick="toggleMenu()">✖</li>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About As</a></li>
+        <li><a href="#">Prodacts</a></li>
+        <li><a href="contant.html">Contact</a></li>
+        <li>
+            <a href="admin.html" class="admin-nav-link" id="adminNavLink" title="Admin">
+                <span class="admin-icon">👤</span> Login
+            </a>
+        </li>
+    </ul>
+    </nav>
+    
+    <!-- IndexedDB Database Layer -->
+    <script src="db.js"></script>
+    <!-- Shared data store -->
+    <script src="products.js"></script>
+
+    <script>
+    document.write('<button id="langBtn" onclick="toggleLang()" style="position:fixed;top:80px;right:20px;z-index:1001;padding:10px 20px;background:white;border:2px solid rgb(235, 65, 121);border-radius:20px;cursor:pointer;font-weight:bold;color:rgb(235, 65, 121)">العربية</button>');
+
+    function toggleLang() {
+        var lang = localStorage.getItem("lang") || "en";
+        var newLang = lang === "en" ? "ar" : "en";
+        localStorage.setItem("lang", newLang);
+        document.body.dir = newLang === "ar" ? "rtl" : "ltr";
+        document.getElementById("langBtn").textContent = newLang === "en" ? "العربية" : "English";
+        renderProducts();
+        updateContent();
+        updateAdminIcon();
+    }
+    
+    function updateContent() {
+        var lang = localStorage.getItem("lang") || "en";
+        var navLinks = document.querySelectorAll("#navMenu li a:not(.admin-nav-link)");
+        if (navLinks[0]) navLinks[0].textContent = lang === "ar" ? "الرئيسية" : "Home";
+        if (navLinks[1]) navLinks[1].textContent = lang === "ar" ? "عن الشركة" : "About As";
+        if (navLinks[2]) navLinks[2].textContent = lang === "ar" ? "المنتجات" : "Prodacts";
+        if (navLinks[3]) navLinks[3].textContent = lang === "ar" ? "اتصل بنا" : "Contact";
+        
+        var footerText = document.getElementById("footerText");
+        if (footerText) footerText.textContent = lang === "ar" ? "جميع الحقوق محفوظة" : "All Rights Reserved";
+    }
+    </script>
+
+    <div class="prodact" id="contaner"></div>
+
+    <footer>
+     <p>01030006247</p>
+     <p>Bahabeho</p>
+     <p id="footerText">All Rights Reserved</p>
+    </footer>
+
+    <script>
+    function getProductName(product) {
+        var lang = localStorage.getItem("lang") || "en";
+        return lang === "ar" ? product.nameAr : product.nameEn;
+    }
+    
+    function renderProducts() {
+        // Load fresh from IndexedDB
+        DermaCareDB.getAllProducts(function(err, products) {
+            if (err || !products.length) {
+                // Fallback: seed from defaults then re-render
+                DermaCareDB.seedIfEmpty(DEFAULT_PRODUCTS, function() {
+                    DermaCareDB.getAllProducts(function(err2, prods) {
+                        _doRender(prods || []);
+                    });
+                });
+                return;
+            }
+            _doRender(products);
+        });
+    }
+
+    function getImgSrc(p) {
+        return p.imageData || p.image || '';
+    }
+
+    function _doRender(prodacts) {
+        var container = document.getElementById("contaner");
+        container.innerHTML = "";
+        var btnText = localStorage.getItem("lang") === "ar" ? "عرض المنتج" : "view product";
+        prodacts = prodacts.sort(function(a,b){ return (a.createdAt||0)-(b.createdAt||0); });
+        prodacts.forEach(function(prodact) {
+            var imgSrc = getImgSrc(prodact);
+            var imgTag = imgSrc
+                ? "<img class='image' src='" + imgSrc + "' onclick='goToprodact(" + prodact.id + ")' onerror=\"this.style.background='#fde8ec';this.src=''\">"
+                : "<div class='image' style='width:100%;height:100%;background:#fde8ec;display:flex;align-items:center;justify-content:center;font-size:2.5rem;cursor:pointer' onclick='goToprodact(" + prodact.id + ")'>🌸</div>";
+            
+            var descText = prodact.description || (localStorage.getItem("lang") === "ar" ? "منتج عالي الجودة للعناية بجمالك." : "Premium quality beauty product for daily care.");
+            
+            container.innerHTML += "<div class='car'>" 
+                + "<div class='car-img-wrapper'>" + imgTag + "</div>"
+                + "<div class='car-body'>"
+                + "<h3 onclick='goToprodact(" + prodact.id + ")'>" + getProductName(prodact) + "</h3>"
+                + "<p class='car-desc'>" + descText + "</p>"
+                + "<div class='pric'>" + prodact.price + " LE</div>"
+                + "<button class='bt' onclick='goToprodact(" + prodact.id + ")'>" + btnText + "</button>"
+                + "</div></div>";
+        });
+    }
+    
+    function goToprodact(id) {
+        window.location.href = "image.html?id=" + id;
+    }
+    
+    function toggleMenu() {
+        document.getElementById("navMenu").classList.toggle("active");
+    }
+
+    function updateAdminIcon() {
+        var adminLink = document.getElementById("adminNavLink");
+        var lang = localStorage.getItem("lang") || "en";
+        if (adminLink) {
+            if (DC_isAdminLoggedIn()) {
+                adminLink.innerHTML = '<span class="admin-icon">⚙️</span> ' + (lang === "ar" ? "لوحة التحكم" : "Admin");
+            } else {
+                adminLink.innerHTML = '<span class="admin-icon">👤</span> ' + (lang === "ar" ? "تسجيل الدخول" : "Login");
+            }
+        }
+    }
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        var savedLang = localStorage.getItem("lang");
+        if (savedLang) {
+            document.body.dir = savedLang === "ar" ? "rtl" : "ltr";
+            document.getElementById("langBtn").textContent = savedLang === "en" ? "العربية" : "English";
+        }
+        renderProducts();
+        updateContent();
+        updateAdminIcon();
+    });
+    </script>
+<script>
+    var prodacts = [
+        {id: 1, price: 750, image: "WhatsApp Image 2026-06-13 at 2.12.06 AM.jpeg" },
+        {id: 2, price: 750, image: "WhatsApp Image 2026-06-13 at 2.12.07 AM.jpeg" },
+        {id: 3, price: 750, image: "WhatsApp Image 2026-06-13 at 2.12.08 AM.jpeg" },
+        {id: 4, price: 750, image: "WhatsApp Image 2026-06-13 at 2.12.07 AM (1).jpeg" },
+        {id: 5, price: 750, image: "WhatsApp Image 2026-06-13 at 2.12.07 AM (2).jpeg" },
+        {id: 6, price: 750, image: "WhatsApp Image 2026-06-13 at 2.12.07 AM (3).jpeg" },
+        {id: 7, price: 750, image: "WhatsApp Image 2026-06-13 at 2.12.08 AM (2).jpeg" },
+        {id: 8, price: 750, image: "WhatsApp Image 2026-06-13 at 2.12.08 AM (1).jpeg" },
+        {id: 9, price: 750, image: "photo_2026-06-13_13-56-16.jpg" },
+        {id: 10, price: 750, image: "photo_2026-06-13_13-56-33.jpg" },
+        {id: 11, price: 750, image: "photo_2026-06-13_13-56-55.jpg" },
+        {id: 12, price: 1150, image: "photo_2026-06-13_13-57-22.jpg" },
+        {id: 13, price: 750, image: "photo_2026-06-13_13-57-44.jpg" }
+    ];
+</script>
+</body>
+</html>

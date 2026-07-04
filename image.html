@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Bahabehio</title>
+    <link rel="stylesheet" href="derma.css">
+    <style>
+        /* Admin icon in navbar */
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: white;
+            font-size: 17px;
+            transition: 0.3s;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .admin-nav-link:hover { color: #585556; background: rgba(255,255,255,0.3); }
+        .admin-icon { font-size: 18px; }
+    </style>
+</head>
+<body>
+    <nav>
+    <div class="logo">Bahabehio</div>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <ul id="navMenu">
+        <li class="close-btn" onclick="toggleMenu()">✖</li>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About As</a></li>
+        <li><a href="prodact.html">Prodacts</a></li>
+        <li><a href="contant.html">Contact</a></li>
+        <li>
+            <a href="admin.html" class="admin-nav-link" id="adminNavLink" title="Admin">
+                <span class="admin-icon">👤</span> Login
+            </a>
+        </li>
+    </ul>
+    </nav>
+
+    <!-- IndexedDB Database Layer -->
+    <script src="db.js"></script>
+    <!-- Shared data store -->
+    <script src="products.js"></script>
+
+    <script>
+    document.write('<button id="langBtn" onclick="toggleLang()" style="position:fixed;top:80px;right:20px;z-index:1001;padding:10px 20px;background:white;border:2px solid rgb(235, 65, 121);border-radius:20px;cursor:pointer;font-weight:bold;color:rgb(235, 65, 121)">العربية</button>');
+
+    function toggleLang() {
+        var lang = localStorage.getItem("lang") || "en";
+        var newLang = lang === "en" ? "ar" : "en";
+        localStorage.setItem("lang", newLang);
+        document.body.dir = newLang === "ar" ? "rtl" : "ltr";
+        document.getElementById("langBtn").textContent = newLang === "en" ? "العربية" : "English";
+        renderProduct();
+        updateContent();
+        updateAdminIcon();
+    }
+    
+    function updateContent() {
+        var lang = localStorage.getItem("lang") || "en";
+        var navLinks = document.querySelectorAll("#navMenu li a:not(.admin-nav-link)");
+        if (navLinks[0]) navLinks[0].textContent = lang === "ar" ? "الرئيسية" : "Home";
+        if (navLinks[1]) navLinks[1].textContent = lang === "ar" ? "عن الشركة" : "About As";
+        if (navLinks[2]) navLinks[2].textContent = lang === "ar" ? "المنتجات" : "Prodacts";
+        if (navLinks[3]) navLinks[3].textContent = lang === "ar" ? "اتصل بنا" : "Contact";
+        
+        var footerText = document.getElementById("footerText");
+        if (footerText) footerText.textContent = lang === "ar" ? "جميع الحقوق محفوظة" : "All Rights Reserved";
+    }
+    </script>
+
+    <div class="details" id="prodactdetalis"></div>
+    <div class="carts" id="cart">
+    <div class="cart_header">YOUR CART <span class="close-cart" onclick="closecart()">x</span></div>
+    <div class="cartitem" id="cartItems"></div>
+    <button onclick="window.location.href='check-out.html'" class="checkout-btn">check out</button>
+    </div>
+    
+    <script>
+    function getProductName(product) {
+        var lang = localStorage.getItem("lang") || "en";
+        return (lang === "ar" ? product.nameAr : product.nameEn) || product.name;
+    }
+    
+    function getProductDesc(product) {
+        var lang = localStorage.getItem("lang") || "en";
+        return lang === "ar" ? product.descAr : product.descEn;
+    }
+    
+    function getImgSrc(p) {
+        return p.imageData || p.image || '';
+    }
+
+    function renderProduct() {
+        DermaCareDB.getAllProducts(function(err, products) {
+            if (err || !products || !products.length) {
+                // Fallback seed
+                DermaCareDB.seedIfEmpty(DEFAULT_PRODUCTS, function() {
+                    DermaCareDB.getAllProducts(function(e2, prods) { _doRenderProduct(prods || []); });
+                });
+                return;
+            }
+            _doRenderProduct(products);
+        });
+    }
+
+    function _doRenderProduct(prodacts) {
+        var url = new URLSearchParams(window.location.search);
+        var proid = parseInt(url.get("id"));
+        var prodact = prodacts.find(function(p) { return p.id === proid; });
+        
+        var cont = document.getElementById("prodactdetalis");
+        var btnText = localStorage.getItem("lang") === "ar" ? "أضف للسلة" : "Add to Cart";
+        var cartText = localStorage.getItem("lang") === "ar" ? "سلتك" : "YOUR CART";
+        var checkoutText = localStorage.getItem("lang") === "ar" ? "الدفع" : "check out";
+        
+        if (prodact) {
+            var imgSrc = getImgSrc(prodact);
+            var imgTag = imgSrc
+                ? "<img src='" + imgSrc + "' onerror=\"this.style.background='#fde8ec';this.src=''\">" 
+                : "<div style='width:100%;min-height:200px;background:#fde8ec;display:flex;align-items:center;justify-content:center;font-size:3rem;border-radius:12px'>🌸</div>";
+            cont.innerHTML = imgTag
+                + "<div class='info'><h3>" + getProductName(prodact) + "</h3>"
+                + "<div class='desc'>" + (getProductDesc(prodact) || "").replace(/\n/g, '<br>') + "</div>"
+                + "<div class='price'>" + prodact.price + " LE</div>"
+                + "<button class='btn' onclick='addToCart(" + prodact.id + ")'>"
+                + btnText + "</button></div>";
+        } else {
+             cont.innerHTML = "<p>Product not found.</p>";
+        }
+        
+        var cartHeader = document.querySelector(".cart_header");
+        if (cartHeader) { cartHeader.innerHTML = cartText + ' <span class="close-cart" onclick="closecart()">x</span>'; }
+        
+        var checkoutBtn = document.querySelector(".checkout-btn");
+        if (checkoutBtn) { checkoutBtn.textContent = checkoutText; }
+    }
+    
+    function getcart() {
+        var data = localStorage.getItem("cart");
+        if (!data) return [];
+        var parse = JSON.parse(data);
+        if (!Array.isArray(parse)) { localStorage.removeItem("cart"); return []; }
+        return parse;
+    }
+
+    function savecart(cart) { localStorage.setItem("cart", JSON.stringify(cart)); }
+
+    function addToCart(id) {
+        DermaCareDB.getAllProducts(function(err, prodacts) {
+        var p = (prodacts||[]).find(function(prod) { return prod.id === id; });
+        if (!p) return;
+        var cart = getcart();
+        var existingItem = cart.find(function(item) { return item.id === id; });
+        
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({id: p.id, name: getProductName(p), nameEn: p.nameEn, nameAr: p.nameAr, price: p.price, quantity: 1});
+        }
+        
+        savecart(cart);
+        updateCart();
+        openCart();
+        });
+    }
+    
+    function updateCart() {
+        var list = document.getElementById("cartItems");
+        list.innerHTML = "";
+        var cart = getcart();
+
+        cart.forEach(function(item, index) {
+            list.innerHTML += "<div class='item'><span>" + getProductName(item) + "</span><div class='qty-controls'><button onclick='changeQty(" + index + ", -1)'>➖</button><span>" + item.quantity + "</span><button onclick='changeQty(" + index + ", 1)'>➕</button></div><span>" + (item.price * item.quantity) + " LE</span><button class='delete-btn' onclick='removeItem(" + index + ")'>🗑️</button></div><hr>";
+        });
+    }
+    
+    function changeQty(index, change) {
+        var cart = getcart();
+        cart[index].quantity += change;
+        if (cart[index].quantity <= 0) {
+            cart.splice(index, 1);
+        }
+        savecart(cart);
+        updateCart();
+    }
+    
+    function removeItem(index) {
+        var cart = getcart();
+        cart.splice(index, 1);
+        savecart(cart);
+        updateCart();
+    }
+    function openCart() { document.getElementById("cart").classList.add("open"); }
+    function closecart() { document.getElementById("cart").classList.remove("open"); }
+    function toggleMenu() { document.getElementById("navMenu").classList.toggle("active"); }
+    
+    function updateAdminIcon() {
+        var adminLink = document.getElementById("adminNavLink");
+        var lang = localStorage.getItem("lang") || "en";
+        if (adminLink) {
+            if (DC_isAdminLoggedIn()) {
+                adminLink.innerHTML = '<span class="admin-icon">⚙️</span> ' + (lang === "ar" ? "لوحة التحكم" : "Admin");
+            } else {
+                adminLink.innerHTML = '<span class="admin-icon">👤</span> ' + (lang === "ar" ? "تسجيل الدخول" : "Login");
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var savedLang = localStorage.getItem("lang");
+        if (savedLang) {
+            document.body.dir = savedLang === "ar" ? "rtl" : "ltr";
+            document.getElementById("langBtn").textContent = savedLang === "en" ? "العربية" : "English";
+        }
+        renderProduct();
+        updateCart();
+        updateContent();
+        updateAdminIcon();
+    });
+    </script>
+
+    <footer>
+     <p>01012210231</p>
+     <p>Bahabeho</p>
+     <p id="footerText">All Rights Reserved</p>
+    </footer>
+</body>
+</html>

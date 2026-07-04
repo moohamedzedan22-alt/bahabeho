@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - bahabeho</title>
+    <link rel="stylesheet" href="derma.css">
+</head>
+<body>
+    <nav >
+    <div class="logo">bahabeho</div>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+
+    <ul id="navMenu">
+        <li class="close-btn" onclick="toggleMenu()">✖</li>
+
+        <li><a href="index.html">Home</a></li>
+        <li><a href="#">About As</a></li>
+        <li><a href="prodact.html">Prodacts</a></li>
+        <li><a href="contant.html">Contact</a></li>
+        
+    </ul>
+    </nav>
+
+    <script>
+    document.write(`
+        <button id="langBtn" onclick="toggleLang()" style="
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1001;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid rgb(235, 65, 121);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: rgb(235, 65, 121);
+        ">العربية</button>
+    `);
+
+    function toggleLang() {
+        const lang = localStorage.getItem("lang") || "en";
+        const newLang = lang === "en" ? "ar" : "en";
+        localStorage.setItem("lang", newLang);
+        document.body.dir = newLang === "ar" ? "rtl" : "ltr";
+        document.getElementById("langBtn").textContent = newLang === "en" ? "العربية" : "English";
+        updateContent();
+    }
+    </script>
+
+    <div class="about">
+     <h1 id="aboutTitle">About Us</h1>   
+     <p id="aboutText1">We always stand out with the highest quality and lowest prices in the market, and you'll always find something that suits you and makes you proud, wherever you are.</p>
+     
+       <img src="" alt="img">
+    </div>
+
+        <footer>
+     <p>01012210231</p>
+     <p>bahabeho</p>
+     <p id="footerText">All Rights Reserved</p>
+    </footer>
+
+    <script>
+    function updateContent() {
+        const lang = localStorage.getItem("lang") || "en";
+        
+        // Update about page content
+     
+        // Update nav
+        const navLinks = document.querySelectorAll("#navMenu li a");
+        if (navLinks[0]) navLinks[0].textContent = lang === "ar" ? "الرئيسية" : "Home";
+        if (navLinks[1]) navLinks[1].textContent = lang === "ar" ? "عن الشركة" : "About As";
+        if (navLinks[2]) navLinks[2].textContent = lang === "ar" ? "المنتجات" : "Prodacts";
+        if (navLinks[3]) navLinks[3].textContent = lang === "ar" ? "اتصل بنا" : "Contact";
+    }
+    
+    function toggleMenu() {
+        document.getElementById("navMenu").classList.toggle("active");
+    }
+    
+    // Initialize
+    document.addEventListener("DOMContentLoaded", function() {
+        const savedLang = localStorage.getItem("lang");
+        if (savedLang) {
+            document.body.dir = savedLang === "ar" ? "rtl" : "ltr";
+            document.getElementById("langBtn").textContent = savedLang === "en" ? "العربية" : "English";
+        }
+        updateContent();
+    });
+    </script>

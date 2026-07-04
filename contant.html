@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Bahabeho</title>
+    <link rel="stylesheet" href="derma.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+     <nav>
+    <div class="logo">Bahabehio</div>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+
+    <ul id="navMenu">
+        <li class="close-btn" onclick="toggleMenu()">✖</li>
+
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About As</a></li>
+        <li><a href="prodact.html">Prodacts</a></li>
+        <li><a href="#">Contact</a></li>
+        
+    </ul>
+    </nav>
+
+    <script>
+    document.write(`
+        <button id="langBtn" onclick="toggleLang()" style="
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1001;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid rgb(235, 65, 121);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: rgb(235, 65, 121);
+        ">العربية</button>
+    `);
+
+    function toggleLang() {
+        const lang = localStorage.getItem("lang") || "en";
+        const newLang = lang === "en" ? "ar" : "en";
+        localStorage.setItem("lang", newLang);
+        document.body.dir = newLang === "ar" ? "rtl" : "ltr";
+        document.getElementById("langBtn").textContent = newLang === "en" ? "العربية" : "English";
+        updateContent();
+    }
+    </script>
+
+    <div class="container">
+    <h1 id="contactTitle">Contact Us</h1>
+    <div class="name">
+    <h2 id="phoneLabel">phone number</h2>
+    <p>01012210231</p>
+    <h2 id="emailLabel">email</h2>
+    <p>baha.beho.25@gmail.com</p>
+    <a href="https://www.facebook.com/share/1ATsu6UhST/"><i class="fa-brands fa-facebook" style="color: #575151;"></i></a>
+    <a href="https://www.instagram.com/baha.beho?igsh=MWl0bGJndDRxNWQzYw=="><i class="fa-brands fa-instagram" style="color: #575151;"></i></a>
+    </div>
+    <form>
+    <label id="nameLabel">your name</label>
+    <input type="text" id="nameInput" placeholder="Enter Your Name">
+    <label id="emailFormLabel">Your Email</label>
+    <input type="text" id="emailInput" placeholder="Enter Your Email">
+    <label id="messageLabel">Your Message</label>
+    <textarea id="textarea" placeholder="Write Your Message"></textarea>
+    <button class="click" id="sendBtn" onclick="placeorder()">Send Message</button>
+    </form>
+    </div>
+        <footer>
+     <p>01012210231</p>
+     <p>Bahabehio</p>
+     <p id="footerText">All Rights Reserved</p>
+    </footer>
+
+    <script>
+    function updateContent() {
+        const lang = localStorage.getItem("lang") || "en";
+        
+        // Update contact page content
+        document.getElementById("contactTitle").textContent = lang === "ar" ? "اتصل بنا" : "Contact Us";
+        document.getElementById("phoneLabel").textContent = lang === "ar" ? "رقم الهاتف" : "phone number";
+        document.getElementById("emailLabel").textContent = lang === "ar" ? "البريد الإلكتروني" : "email";
+        document.getElementById("nameLabel").textContent = lang === "ar" ? "اسمك" : "your name";
+        document.getElementById("emailFormLabel").textContent = lang === "ar" ? "بريدك الإلكتروني" : "Your Email";
+        document.getElementById("messageLabel").textContent = lang === "ar" ? "رسالتك" : "Your Message";
+        document.getElementById("sendBtn").textContent = lang === "ar" ? "إرسال الرسالة" : "Send Message";
+        document.getElementById("footerText").textContent = lang === "ar" ? "جميع الحقوق محفوظة" : "All Rights Reserved";
+        
+        // Update placeholders
+        document.getElementById("nameInput").placeholder = lang === "ar" ? "أدخل اسمك" : "Enter Your Name";
+        document.getElementById("emailInput").placeholder = lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter Your Email";
+        document.getElementById("textarea").placeholder = lang === "ar" ? "اكتب رسالتك" : "Write Your Message";
+        
+        // Update nav
+        const navLinks = document.querySelectorAll("#navMenu li a");
+        if (navLinks[0]) navLinks[0].textContent = lang === "ar" ? "الرئيسية" : "Home";
+        if (navLinks[1]) navLinks[1].textContent = lang === "ar" ? "عن الشركة" : "About As";
+        if (navLinks[2]) navLinks[2].textContent = lang === "ar" ? "المنتجات" : "Prodacts";
+        if (navLinks[3]) navLinks[3].textContent = lang === "ar" ? "اتصل بنا" : "Contact";
+    }
+    
+    function placeorder() {
+        const textarea = document.getElementById("textarea").value.trim();
+        const lang = localStorage.getItem("lang") || "en";
+        
+        if (!textarea) {
+            alert(lang === "ar" ? "من فضلك اكتب رسالة" : "please write message");
+            return;
+        }
+
+        let message = "";
+        if (lang === "ar") {
+            message = "🛍️ *رسالة جديدة*\n\n";
+            message += "\n🧾 *الرسالة*";
+            message += "\n💰 *نص الرسالة:* " + textarea;
+        } else {
+            message = "🛍️ *New Message*\n\n";
+            message += "\n🧾 *message*";
+            message += "\n💰 *your Message:* " + textarea;
+        }
+
+        const phoneNumber = "201012210231";
+        const whatsappURL = "https://wa.me/" + phoneNumber + "?text=" + encodeURIComponent(message);
+
+        window.open(whatsappURL, "_blank");
+    }
+
+    function toggleMenu() {
+        document.getElementById("navMenu").classList.toggle("active");
+    }
+
+    // Initialize
+    document.addEventListener("DOMContentLoaded", function() {
+        const savedLang = localStorage.getItem("lang");
+        if (savedLang) {
+            document.body.dir = savedLang === "ar" ? "rtl" : "ltr";
+            document.getElementById("langBtn").textContent = savedLang === "en" ? "العربية" : "English";
+        }
+        updateContent();
+    });
+    </script>

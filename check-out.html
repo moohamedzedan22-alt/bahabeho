@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Bahabehio</title>
+    <link rel="stylesheet" href="derma.css">
+    <style>
+        /* Admin icon in navbar */
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: white;
+            font-size: 17px;
+            transition: 0.3s;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .admin-nav-link:hover { color: #ffe0ec; background: rgba(255,255,255,0.3); }
+        .admin-icon { font-size: 18px; }
+    </style>
+</head>
+<body>
+    <nav>
+    <div class="logo">Bahabeho</div>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <ul id="navMenu">
+        <li class="close-btn" onclick="toggleMenu()">✖</li>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About As</a></li>
+        <li><a href="prodact.html">Prodacts</a></li>
+        <li><a href="contant.html">Contact</a></li>
+        <li>
+            <a href="admin.html" class="admin-nav-link" id="adminNavLink" title="Admin">
+                <span class="admin-icon">👤</span> Login
+            </a>
+        </li>
+    </ul>
+    </nav>
+
+    <!-- Shared data store -->
+    <script src="products.js"></script>
+
+    <script>
+    document.write('<button id="langBtn" onclick="toggleLang()" style="position:fixed;top:80px;right:20px;z-index:1001;padding:10px 20px;background:white;border:2px solid rgb(235, 65, 121);border-radius:20px;cursor:pointer;font-weight:bold;color:rgb(235, 65, 121)">العربية</button>');
+
+    function toggleLang() {
+        var lang = localStorage.getItem("lang") || "en";
+        var newLang = lang === "en" ? "ar" : "en";
+        localStorage.setItem("lang", newLang);
+        document.body.dir = newLang === "ar" ? "rtl" : "ltr";
+        document.getElementById("langBtn").textContent = newLang === "en" ? "العربية" : "English";
+        updateContent();
+        renderCart();
+        updateAdminIcon();
+    }
+    </script>
+
+    <div class="check_out">
+    <div class="summary">
+    <h2 id="orderTitle">your order</h2>
+    <div id="cartiitems"></div>
+    <div class="total" id="total-price"></div>
+    </div>
+  
+    <div class="summary">
+    <p id="shippingTitle">SHIPPING DETAILS</p>
+    <input type="text" id="nameInput" placeholder="Enter Your Name">
+    <input type="email" id="emailInput" placeholder="Enter Your Email">
+    <input type="number" id="phoneInput" placeholder="Phone number">
+    <textarea id="addressInput" placeholder="Write Your Shipping Address"></textarea>
+    <select id="paymentSelect">
+    <option value="">vodafone cash =>01012210231</option>
+    <option value="">insta pay =>01012210231</option>
+    </select>
+    <button id="placeOrderBtn" onclick="placeorder()">place order</button>
+    </div>
+    </div>
+
+    <footer>
+     <p>01012210231</p>
+     <p>Bahabehio</p>
+     <p id="footerText">All Rights Reserved</p>
+    </footer>
+
+    <script>
+    function getProductName(product) {
+        var lang = localStorage.getItem("lang") || "en";
+        return lang === "ar" ? product.nameAr : product.nameEn;
+    }
+
+    function getProductById(id) {
+        var prodacts = DC_getProducts();
+        return prodacts.find(function(p) { return p.id === id; });
+    }
+
+    function updateContent() {
+        var lang = localStorage.getItem("lang") || "en";
+        document.getElementById("orderTitle").textContent = lang === "ar" ? "طلبك" : "your order";
+        document.getElementById("shippingTitle").textContent = lang === "ar" ? "بيانات الشحن" : "SHIPPING DETAILS";
+        document.getElementById("placeOrderBtn").textContent = lang === "ar" ? "تأكيد الطلب" : "place order";
+        document.getElementById("footerText").textContent = lang === "ar" ? "جميع الحقوق محفوظة" : "All Rights Reserved";
+
+        document.getElementById("nameInput").placeholder = lang === "ar" ? "أدخل اسمك" : "Enter Your Name";
+        document.getElementById("emailInput").placeholder = lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter Your Email";
+        document.getElementById("phoneInput").placeholder = lang === "ar" ? "رقم الهاتف" : "Phone number";
+        document.getElementById("addressInput").placeholder = lang === "ar" ? "أدخل عنوان الشحن" : "Write Your Shipping Address";
+
+        var paymentSelect = document.getElementById("paymentSelect");
+        paymentSelect.options[0].text = lang === "ar" ? "فودافون كاش =>01012210231" : "vodafone cash =>01012210231";
+        paymentSelect.options[1].text = lang === "ar" ? "إنستا باي =>01012210231" : "insta pay =>01012210231";
+
+        var navLinks = document.querySelectorAll("#navMenu li a:not(.admin-nav-link)");
+        if (navLinks[0]) navLinks[0].textContent = lang === "ar" ? "الرئيسية" : "Home";
+        if (navLinks[1]) navLinks[1].textContent = lang === "ar" ? "عن الشركة" : "About As";
+        if (navLinks[2]) navLinks[2].textContent = lang === "ar" ? "المنتجات" : "Prodacts";
+        if (navLinks[3]) navLinks[3].textContent = lang === "ar" ? "اتصل بنا" : "Contact";
+    }
+
+    function renderCart() {
+        var cart = JSON.parse(localStorage.getItem("cart")) || [];
+        var cartiitem = document.getElementById("cartiitems");
+        var total_pric = document.getElementById("total-price");
+        var lang = localStorage.getItem("lang") || "en";
+
+        var total = 0;
+        cartiitem.innerHTML = "";
+
+        if (cart.length === 0) {
+            cartiitem.innerHTML = "<p>" + (lang === "ar" ? "السلة فارغة" : "cart is empty") + "</p>";
+        } else {
+            cart.forEach(function(item) {
+                var product = getProductById(item.id);
+
+                // IMPORTANT: prefer item.name (added by image.html) to avoid undefined
+                var name = item.nameAr && lang === "ar" ? item.nameAr : (item.nameEn && lang === "en" ? item.nameEn : item.name) || (product && product.nameEn ? getProductName(product) : "");
+                var qty = item.quantity || 1;
+
+                total += item.price * qty;
+                cartiitem.innerHTML += "<div class='cart-item'><span>" + name + " (x" + qty + ")</span><span>" + (item.price * qty) + " LE</span></div><hr>";
+            });
+        }
+
+        total_pric.innerText = (lang === "ar" ? "الإجمالي: " : "total: ") + total + " LE";
+    }
+
+    function placeorder() {
+        var cart = JSON.parse(localStorage.getItem("cart")) || [];
+        var lang = localStorage.getItem("lang") || "en";
+
+        if (cart.length === 0) {
+            alert(lang === "ar" ? "السلة فارغة!" : "Your cart is empty!");
+            return;
+        }
+
+        var message = "";
+        var total = 0;
+
+        if (lang === "ar") {
+            message = "🛍️ طلب جديد\n\n";
+            cart.forEach(function(item, index) {
+                var product = getProductById(item.id);
+
+                // IMPORTANT: prefer item.name to avoid undefined
+                var name = item.nameAr && lang === "ar" ? item.nameAr : (item.nameEn && lang === "en" ? item.nameEn : item.name) || (product && product.nameEn ? getProductName(product) : "");
+                var qty = item.quantity || 1;
+
+                message += (index + 1) + ". " + name + " (x" + qty + ") - " + (item.price * qty) + " LE\n";
+                total += item.price * qty;
+            });
+            message += "\nملخص الطلب";
+            message += "\nالإجمالي: " + total + " LE";
+        } else {
+            message = "🛍️ New Order\n\n";
+            cart.forEach(function(item, index) {
+                var product = getProductById(item.id);
+
+                // IMPORTANT: prefer item.name to avoid undefined
+                var name = item.nameAr && lang === "ar" ? item.nameAr : (item.nameEn && lang === "en" ? item.nameEn : item.name) || (product && product.nameEn ? getProductName(product) : "");
+                var qty = item.quantity || 1;
+
+                message += (index + 1) + ". " + name + " (x" + qty + ") - " + (item.price * qty) + " LE\n";
+                total += item.price * qty;
+            });
+            message += "\nOrder Summary";
+            message += "\nTotal: " + total + " LE";
+        }
+
+        var phoneNumber = "201012210231";
+        var whatsappURL = "https://wa.me/" + phoneNumber + "?text=" + encodeURIComponent(message);
+
+        window.open(whatsappURL, "_blank");
+        localStorage.removeItem("cart");
+        renderCart();
+        goToderma();
+    }
+
+    function goToderma() {
+        window.location.href = "index.html";
+    }
+
+    function toggleMenu() {
+        document.getElementById("navMenu").classList.toggle("active");
+    }
+    
+    function updateAdminIcon() {
+        var adminLink = document.getElementById("adminNavLink");
+        var lang = localStorage.getItem("lang") || "en";
+        if (adminLink) {
+            if (DC_isAdminLoggedIn()) {
+                adminLink.innerHTML = '<span class="admin-icon">⚙️</span> ' + (lang === "ar" ? "لوحة التحكم" : "Admin");
+            } else {
+                adminLink.innerHTML = '<span class="admin-icon">👤</span> ' + (lang === "ar" ? "تسجيل الدخول" : "Login");
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var savedLang = localStorage.getItem("lang");
+        if (savedLang) {
+            document.body.dir = savedLang === "ar" ? "rtl" : "ltr";
+            document.getElementById("langBtn").textContent = savedLang === "en" ? "العربية" : "English";
+        }
+        updateContent();
+        renderCart();
+        updateAdminIcon();
+    });
+    </script>
+</body>
+</html>
