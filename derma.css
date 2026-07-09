@@ -367,6 +367,9 @@ footer p {
     .logo {
         font-size: 20px;
     }
+    .footerr{
+        font-size: 16px;
+    }
 
     nav ul li a {
         font-size: 16px;
