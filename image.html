@@ -48,7 +48,7 @@
     <script src="products.js"></script>
 
     <script>
-    document.write('<button id="langBtn" onclick="toggleLang()" style="position:fixed;top:80px;right:20px;z-index:1001;padding:10px 20px;background:white;border:2px solid rgb(235, 65, 121);border-radius:20px;cursor:pointer;font-weight:bold;color:rgb(235, 65, 121)">العربية</button>');
+    document.write('<button id="langBtn" onclick="toggleLang()" style="position:fixed;top:80px;right:20px;z-index:1001;padding:10px 20px;background:white;border:2px solid #555;border-radius:20px;cursor:pointer;font-weight:bold;color:#555">العربية</button>');
 
     function toggleLang() {
         var lang = localStorage.getItem("lang") || "en";
@@ -225,10 +225,40 @@
     });
     </script>
 
-    <footer>
-     <p>01012210231</p>
-     <p>Bahabeho</p>
-     <p id="footerText">All Rights Reserved</p>
+     <footer>
+        <div class="footerr">
+            <div class="namwee">
+             <h2>Bahabeho </h2>
+             <p>متجر ملابس لبيع الملابس بسعر خيالي  ولفتره محدوده</p>
+            </div>
+            <div class="foot">
+                 <h3>contant</h3>
+                 <ul>
+                    <li><a href="https://www.instagram.com/baha.beho?igsh=MWl0bGJndDRxNWQzYw==">instagram</a></li>
+                    <li><a href="https://www.facebook.com/share/1ATsu6UhST/">facebook</a></li>
+    
+                 </ul>
+            </div>
+            <div class="orderh">
+                <h3>المميزات</h3>
+                <ul>
+                    <li>توصيل سريع</li>
+                    <li>اسعار مناسبه</li>
+                    <li>خدمه ممتازه</li>
+                </ul>
+
+            </div>
+            <div class="fare">
+                <h3>links</h3> 
+                   <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About As</a></li>
+        <li><a href="prodact.html">Prodacts</a></li>
+        <li><a href="contant.html">Contact</a></li>
+        
+    </ul>
+            </div>
+     </div>
     </footer>
 </body>
 </html>

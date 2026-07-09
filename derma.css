@@ -117,7 +117,7 @@ footer{
     padding: 15px;
     text-align: center;
     color: white;
-    background-color: #555555;
+    background-color: #505050;
 }
 footer p{
     margin: 5px 0px;
@@ -220,7 +220,7 @@ footer p{
 }
 
 .price, .pric {
-    color: #db2777;
+    color: #585858;
     font-size: 1.35rem;
     font-weight: 800;
     margin-bottom: 20px;
@@ -292,7 +292,7 @@ footer p{
 footer {
     text-align: center;
     padding: 20px;
-    background-color: #f8f8f8;
+    background-color: #e9e7e7;
     margin-top: 40px;
 }
 
@@ -300,7 +300,46 @@ footer p {
     color: #555;
     margin: 5px 0;
 }
+.footerr {
+    background-color: #777777;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    color: white;
+    margin: auto;
+    border-radius: 25px;
+    
+}
+.footerr h3 {
+    text-shadow: 0px 7px 15px black;
+}
+.footerr ul {
+    list-style: none;
+   
+    gap: 15px;
 
+}
+.footerr ul li{
+    margin: 10px;
+
+}
+.footerr ul li a {
+    text-shadow: 0px 7px 15px rgb(168, 168, 168);
+    text-decoration: none;
+    color: #1f1919;
+}
+.namwee p{
+      text-shadow: 0px 7px 15px rgb(185, 185, 185);
+    color: #1f1919;  
+
+}
+.orderh  ul{
+         text-shadow: 0px 7px 15px rgb(126, 126, 126);
+    color: #313131;  
+   font-size: 19px;
+   font-weight: bold;
+}
 /* 📱 Mobile Screens */
 @media (max-width: 768px) {
     nav {
